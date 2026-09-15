@@ -14365,6 +14365,10 @@ function renderDesktopStageCockpit(shipment) {
       : "";
   const primaryCard = cards[0] || "";
   const secondaryCards = cards.slice(1).join("");
+  const packet = shipment.truthPacket || {};
+  const pendingWork = packet.operatorAgency?.countsAsWork === true
+    ? String(packet.nextAction?.label || packet.operatorAgency.reason || "Review the shipment evidence.")
+    : "";
   return `
     <div class="desktop-stage-cockpit" data-stage-cockpit="${escapeHtml(shipment.id)}">
       <div class="desktop-stage-cockpit-head">
@@ -14388,7 +14392,9 @@ function renderDesktopStageCockpit(shipment) {
         <div class="desktop-stage-actions desktop-companion-action-stack desktop-stage-primary-action">
           ${primaryCard}
         </div>
-      ` : `<div class="desktop-stage-clear"><strong>No open operator action.</strong><span>Monitoring — no operator move needed.</span></div>`}
+      ` : pendingWork
+        ? `<div class="desktop-stage-clear"><strong>Follow-up required.</strong><span>${escapeHtml(plainCockpitText(pendingWork))}</span></div>`
+        : `<div class="desktop-stage-clear"><strong>No open operator action.</strong><span>Monitoring — no operator move needed.</span></div>`}
       ${secondaryCards ? `
         <details class="desktop-stage-more-actions">
           <summary>Other actions · ${cards.length - 1}</summary>

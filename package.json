@@ -182,5 +182,8 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.4",
     "esbuild": "0.28.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   }
 }

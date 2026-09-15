@@ -1,12 +1,24 @@
 # PQ Ops
 
+[![Public checks](https://github.com/jonathanangel-1/pq-ops-public/actions/workflows/public-checks.yml/badge.svg)](https://github.com/jonathanangel-1/pq-ops-public/actions/workflows/public-checks.yml)
+
+[Engineering guide](docs/ENGINEERING.md) · [Reviewer walkthrough and tests](docs/REVIEW.md) · [Public data boundary](docs/PUBLIC_DATA.md)
+
 An import-operations control room that combines shipment inventory, email evidence, attachments, tracking, and operator updates into current shipment state and the next action.
 
 **Public edition:** application structure, database migrations, integrations, and security controls retained; operational data replaced or excluded. [Data boundary](docs/PUBLIC_DATA.md).
 
 ![Fictional public demo](docs/images/demo.png)
 
+## The engineering focus
+
+A shipment can be delivered while its signed POD is still missing. A TMS row, a station email, and a generated summary carry different authority. PQ Ops keeps source evidence, computed state, and proposed actions separate so the operator can see what is known, what conflicts, and what still needs work.
+
+The [engineering guide](docs/ENGINEERING.md) explains source provenance, temporal resolution, operational gates, and action authority. The [review protocol](docs/REVIEW.md) distinguishes the running demo from the deeper integration code.
+
 ## Run the actual interface with fictional shipments
+
+Requires Node.js 24 or newer.
 
 ```sh
 npm ci --ignore-scripts
