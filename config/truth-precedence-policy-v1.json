@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "truth-precedence-policy-v1",
+  "policyVersion": "pikiio-shipment-precedence-2026-07-09-v1",
+  "description": "Deterministic conflict resolution for accepted shipment claims. Supersession is applied before this policy; newer event meaning wins before same-time evidence quality.",
+  "criteria": [
+    "event_time",
+    "subject_specificity",
+    "responsible_actor",
+    "evidence_directness",
+    "source_class",
+    "confidence",
+    "captured_at",
+    "stable_identifier"
+  ],
+  "eventTime": {
+    "fields": ["occurredAt", "capturedAt", "recordedAt"],
+    "basisRanks": {
+      "occurredAt": 300,
+      "capturedAt": 200,
+      "recordedAt": 100,
+      "unknown": 0
+    }
+  },
+  "subjectSpecificity": {
+    "shipment": 300,
+    "workgroup": 200,
+    "connection": 100,
+    "unknown": 0
+  },
+  "sourceClasses": {
+    "operator": { "rank": 500, "label": "operator-recorded source evidence" },
+    "direct_document_or_pod": { "rank": 450, "label": "direct document or POD" },
+    "gmail_parsed_message": { "rank": 350, "label": "parsed Gmail message" },
+    "tms": { "rank": 250, "label": "TMS source record" },
+    "tracking": { "rank": 200, "label": "carrier tracking source event" },
+    "unknown": { "rank": 0, "label": "unclassified accepted evidence" }
+  },
+  "evidenceDirectness": {
+    "signed_document": 700,
+    "direct_system_event": 650,
+    "direct_actor_statement": 600,
+    "forwarded_document": 550,
+    "quoted_actor_statement": 400,
+    "operational_summary": 300,
+    "inferred": 100,
+    "unknown": 0
+  },
+  "defaultActorRanks": {
+    "operator": 500,
+    "customs_authority": 500,
+    "station": 450,
+    "carrier": 425,
+    "driver": 425,
+    "customs_broker": 400,
+    "consignee": 400,
+    "payment_provider": 350,
+    "shipper": 250,
+    "automated_system": 200,
+    "unknown": 0
+  },
+  "gateActorRanks": {
+    "arrival": {
+      "station": 700,
+      "carrier": 600,
+      "operator": 500,
+      "customs_broker": 250
+    },
+    "customs": {
+      "customs_authority": 800,
+      "customs_broker": 700,
+      "operator": 600,
+      "station": 500,
+      "carrier": 300
+    },
+    "fees": {
+      "payment_provider": 750,
+      "station": 700,
+      "operator": 600,
+      "customs_broker": 300
+    },
+    "dispatch": {
+      "operator": 700,
+      "carrier": 650,
+      "driver": 600,
+      "station": 400
+    },
+    "pickup": {
+      "driver": 800,
+      "carrier": 750,
+      "station": 700,
+      "operator": 600,
+      "customs_broker": 250
+    },
+    "delivery": {
+      "consignee": 800,
+      "driver": 750,
+      "carrier": 700,
+      "operator": 600
+    },
+    "pod": {
+      "consignee": 850,
+      "driver": 750,
+      "carrier": 700,
+      "operator": 600
+    },
+    "context": {}
+  },
+  "aliases": {
+    "actors": {
+      "airline": "carrier",
+      "broker": "customs_broker",
+      "cbp": "customs_authority",
+      "courier": "carrier",
+      "customs": "customs_authority",
+      "customer": "consignee",
+      "handler": "station",
+      "terminal": "station",
+      "warehouse": "station"
+    },
+    "directness": {
+      "direct": "direct_actor_statement",
+      "document": "forwarded_document",
+      "email_summary": "operational_summary",
+      "pod": "signed_document",
+      "scan": "direct_system_event",
+      "signed_pod": "signed_document",
+      "system_event": "direct_system_event"
+    }
+  }
+}

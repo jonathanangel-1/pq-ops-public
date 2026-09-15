@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "truth-predicate-registry-v1",
+  "registryVersion": "pikiio-shipment-predicates-2026-07-09-v2",
+  "predicates": {
+    "shipment_observed_in_tms": {
+      "gate": "context",
+      "description": "The shipment AWB is present in the exact structurally complete TMS Operations Log snapshot; this proves inventory membership only, never lifecycle progress or completion.",
+      "statuses": { "positive": "observed", "negative": "not_observed", "requested": "observation_requested", "neutral": "observed", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["(?!)"],
+      "positivePatterns": ["(?!)"],
+      "negativePatterns": ["(?!)"],
+      "plannedPatterns": ["(?!)"],
+      "modelEvidencePatterns": ["(?!)"]
+    },
+    "arrival_confirmed": {
+      "gate": "arrival",
+      "description": "Cargo is physically arrived or on hand at the destination station.",
+      "statuses": { "positive": "arrived", "negative": "not_arrived", "requested": "requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "complete", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:arriv(?:ed|al)?|on[-\\s]?hand|available\\s+for\\s+pickup|freight\\s+availability)\\b"],
+      "positivePatterns": ["\\b(?:cargo|freight|shipment)\\s+(?:(?:has been|was|is)\\s+)?(?:arrived|on[-\\s]?hand|available\\s+for\\s+pickup)\\b", "\\b(?:arrival|on[-\\s]?hand|availability)\\s+(?:is\\s+)?confirmed\\b"],
+      "negativePatterns": ["\\b(?:not\\s+(?:yet\\s+)?arrived|arrival\\s+(?:is\\s+)?pending|not\\s+(?:yet\\s+)?on[-\\s]?hand|not\\s+available\\s+for\\s+pickup)\\b"],
+      "plannedPatterns": ["\\b(?:will|should|expected\\s+to)\\s+(?:arrive|be\\s+on[-\\s]?hand|be\\s+available)\\b", "\\b(?:eta|scheduled\\s+arrival)\\b"],
+      "modelEvidencePatterns": ["\\b(?:arriv(?:ed|al)?|on[-\\s]?hand|available\\s+for\\s+pickup|eta)\\b", "(?:הגיע|הגיעה|הגיעו|זמין|זמינה)"]
+    },
+    "transport_in_transit": {
+      "gate": "arrival",
+      "description": "Cargo is handed to the airline, confirmed onboard, or otherwise in transit; destination arrival is not proven.",
+      "statuses": { "positive": "in_transit", "negative": "not_in_transit", "requested": "status_requested", "neutral": "scheduled", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:in[-\\s]?transit|confirmed\\s+on\\s*board|on\\s*board|dropped\\s*(?:at|@)\\s*(?:the\\s+)?airline|departed|flight\\s+departed)\\b"],
+      "positivePatterns": ["\\b(?:in[-\\s]?transit|confirmed\\s+on\\s*board|dropped\\s*(?:at|@)\\s*(?:the\\s+)?airline|flight\\s+(?:has\\s+)?departed)\\b"],
+      "negativePatterns": ["\\b(?:not\\s+in[-\\s]?transit|not\\s+on\\s*board|flight\\s+did\\s+not\\s+depart)\\b"],
+      "plannedPatterns": ["\\b(?:will|should|scheduled\\s+to)\\s+(?:depart|be\\s+on\\s*board|go\\s+in[-\\s]?transit)\\b"],
+      "modelEvidencePatterns": ["\\b(?:in[-\\s]?transit|on\\s*board|dropped\\s*(?:at|@)\\s*(?:the\\s+)?airline|departed)\\b"]
+    },
+    "cargo_not_found": {
+      "gate": "arrival",
+      "description": "Station or handler cannot locate the cargo.",
+      "statuses": { "positive": "not_found", "negative": "located", "requested": "location_requested", "neutral": "investigating", "unknown": "unknown" },
+      "effects": { "positive": "block", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:cargo|freight|shipment)\\b[^.!?]{0,100}\\b(?:not\\s+found|cannot\\s+locate|can't\\s+locate|missing)\\b", "\\b(?:not\\s+found|cannot\\s+locate|can't\\s+locate)\\b[^.!?]{0,100}\\b(?:cargo|freight|shipment)\\b"],
+      "positivePatterns": ["\\b(?:cargo|freight|shipment)\\b[^.!?]{0,100}\\b(?:not\\s+found|cannot\\s+locate|can't\\s+locate|is\\s+missing)\\b", "\\b(?:not\\s+found|cannot\\s+locate|can't\\s+locate)\\b[^.!?]{0,100}\\b(?:cargo|freight|shipment)\\b"],
+      "negativePatterns": ["\\b(?:cargo|freight|shipment)\\b[^.!?]{0,80}\\b(?:was\\s+located|has\\s+been\\s+located|found)\\b"],
+      "plannedPatterns": ["\\b(?:searching|investigating|looking)\\b[^.!?]{0,80}\\b(?:cargo|freight|shipment)\\b"],
+      "modelEvidencePatterns": ["\\b(?:not\\s+found|cannot\\s+locate|can't\\s+locate|missing\\s+cargo|cargo\\s+located)\\b"]
+    },
+    "customs_release": {
+      "gate": "customs",
+      "description": "Customs clearance or release is complete.",
+      "statuses": { "positive": "released", "negative": "not_released", "requested": "requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "complete", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:customs|clearance|clear(?:ed)?|release(?:d)?|in[-\\s]?bond)\\b"],
+      "positivePatterns": ["(?:\\b(?:customs(?: clearance)?\\s+(?:(?:has been|was|is)\\s+)?released|(?:shipment|cargo|freight)\\s+(?:(?:has been|was|is)\\s+)?released|release\\s+(?:(?:has been|was|is)\\s+)?(?:completed|confirmed)|cleared\\s+(?:by|through)\\s+customs)\\b|^(?:finally\\s+)?released(?:\\s+now)?[.!]?$)"],
+      "negativePatterns": ["\\b(?:not\\s+(?:yet\\s+)?released|(?:has|have|had)\\s+not\\s+been\\s+released|release\\s+(?:is\\s+)?(?:pending|missing|blocked)|awaiting\\s+(?:customs\\s+)?release|customs\\s+(?:hold|not\\s+released))\\b"],
+      "plannedPatterns": ["\\b(?:(?:will|should)\\s+be\\s+released|release\\s+(?:is\\s+)?(?:expected|planned|scheduled)(?:\\s+to\\s+complete)?)\\b"],
+      "modelEvidencePatterns": ["\\b(?:customs|clearance|clear(?:ed)?|release(?:d)?)\\b", "(?:שוחרר|שוחררו|שחרור|מכס)"]
+    },
+    "customs_hold": {
+      "gate": "customs",
+      "description": "A customs, government, or exam hold is active or removed.",
+      "statuses": { "positive": "active", "negative": "removed", "requested": "status_requested", "neutral": "expected", "unknown": "unknown" },
+      "effects": { "positive": "block", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:customs|government|cbp|fda|exam)\\b[^.!?]{0,80}\\bhold\\b", "\\bhold\\b[^.!?]{0,80}\\b(?:customs|government|cbp|fda|exam)\\b"],
+      "positivePatterns": ["\\b(?:customs|government|cbp|fda|exam)\\s+hold\\s+(?:is\\s+)?(?:active|placed|remaining|still\\s+on)\\b", "\\b(?:on|under)\\s+(?:customs|government|cbp|fda|exam)\\s+hold\\b"],
+      "negativePatterns": ["\\b(?:customs|government|cbp|fda|exam)?\\s*hold\\s+(?:(?:has been|was|is)\\s+)?(?:removed|released|lifted|cleared)\\b"],
+      "plannedPatterns": ["\\bhold\\s+(?:is\\s+)?expected\\s+to\\s+be\\s+(?:removed|lifted|cleared)\\b"],
+      "modelEvidencePatterns": ["\\b(?:customs|government|cbp|fda|exam)\\s+hold\\b", "\\bhold\\s+(?:removed|lifted|cleared)\\b"]
+    },
+    "delivery_order_received": {
+      "gate": "customs",
+      "description": "A delivery order or equivalent release document was received.",
+      "statuses": { "positive": "received", "negative": "missing", "requested": "requested", "neutral": "expected", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:delivery\\s+order|d/?o)\\b"],
+      "positivePatterns": ["\\b(?:delivery\\s+order|d/?o)\\b[^.!?]{0,80}\\b(?:attached|issued|received|ready)\\b", "\\b(?:attached|received)\\b[^.!?]{0,60}\\b(?:delivery\\s+order|d/?o)\\b"],
+      "negativePatterns": ["\\b(?:delivery\\s+order|d/?o)\\b[^.!?]{0,60}\\b(?:missing|pending|not\\s+received|not\\s+issued)\\b"],
+      "plannedPatterns": ["\\b(?:delivery\\s+order|d/?o)\\b[^.!?]{0,60}\\b(?:will\\s+follow|expected|to\\s+follow)\\b"],
+      "modelEvidencePatterns": ["\\b(?:delivery\\s+order|d/?o)\\b"]
+    },
+    "station_fees_due": {
+      "gate": "fees",
+      "description": "Station, terminal, storage, or handling fees remain due.",
+      "statuses": { "positive": "due", "negative": "none_due", "requested": "amount_requested", "neutral": "estimated", "unknown": "unknown" },
+      "effects": { "positive": "block", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:station|terminal|handling|storage|cargosprint)\\s+(?:fees?|charges?)\\b", "\\b(?:amount|balance|total)\\s+due\\b"],
+      "positivePatterns": ["\\b(?:station|terminal|handling|storage|cargosprint)\\s+(?:fees?|charges?)\\b[^.!?]{0,80}\\b(?:due|unpaid|outstanding)\\b", "\\b(?:amount|balance|total)\\s+due\\b"],
+      "negativePatterns": ["\\b(?:no|zero)\\s+(?:station|terminal|handling|storage)\\s+(?:fees?|charges?)\\s+(?:are\\s+)?due\\b"],
+      "plannedPatterns": ["\\b(?:estimated|estimate)\\b[^.!?]{0,80}\\b(?:fees?|charges?)\\b"],
+      "modelEvidencePatterns": ["\\b(?:fees?|charges?|amount\\s+due|balance\\s+due|cargosprint)\\b"]
+    },
+    "station_fees_paid": {
+      "gate": "fees",
+      "description": "Station, terminal, storage, or handling fees were paid.",
+      "statuses": { "positive": "paid", "negative": "unpaid", "requested": "payment_requested", "neutral": "payment_planned", "unknown": "unknown" },
+      "effects": { "positive": "complete", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:station|terminal|handling|storage|cargosprint|invoice)\\b[^.!?]{0,100}\\b(?:paid|payment|receipt|unpaid)\\b", "\\bpayment\\b[^.!?]{0,80}\\b(?:station|terminal|handling|storage|invoice)\\b"],
+      "positivePatterns": ["\\b(?:fees?|charges?|invoice|cargosprint)\\b[^.!?]{0,80}\\b(?:paid|payment\\s+received|payment\\s+confirmed)\\b", "\\bpayment\\s+(?:has\\s+been\\s+)?(?:made|received|confirmed)\\b"],
+      "negativePatterns": ["\\b(?:fees?|charges?|invoice|cargosprint)\\b[^.!?]{0,80}\\b(?:unpaid|not\\s+paid|payment\\s+pending)\\b"],
+      "plannedPatterns": ["\\b(?:will|should)\\s+(?:pay|be\\s+paid)\\b", "\\bpayment\\s+(?:is\\s+)?(?:planned|scheduled|expected)\\b"],
+      "modelEvidencePatterns": ["\\b(?:paid|payment|receipt|unpaid|invoice|cargosprint)\\b"]
+    },
+    "dispatch_confirmed": {
+      "gate": "dispatch",
+      "description": "A carrier or driver is confirmed and dispatched for the shipment.",
+      "statuses": { "positive": "confirmed", "negative": "not_confirmed", "requested": "requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "complete", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:dispatch(?:ed)?|(?:driver|carrier|truck)\\s+(?:(?:has been|is|was)\\s+)?(?:assigned|confirmed|booked))\\b"],
+      "positivePatterns": ["\\b(?:driver|carrier|truck)\\s+(?:(?:has been|is|was)\\s+)?(?:assigned|confirmed|booked|dispatched)\\b", "\\bdispatch\\s+(?:is\\s+)?confirmed\\b"],
+      "negativePatterns": ["\\b(?:no|without)\\s+(?:driver|carrier|truck)\\b", "\\b(?:driver|carrier|dispatch)\\s+(?:is\\s+)?(?:not\\s+confirmed|missing|unassigned|cancelled)\\b"],
+      "plannedPatterns": ["\\b(?:will|should)\\s+(?:assign|dispatch|book)\\b", "\\bdispatch\\s+(?:is\\s+)?(?:planned|scheduled|expected)\\b"],
+      "modelEvidencePatterns": ["\\b(?:dispatch(?:ed)?|driver|carrier|truck\\s+assigned|booked)\\b"]
+    },
+    "pickup_scheduled": {
+      "gate": "pickup",
+      "description": "Pickup has a stated appointment or planned time but is not yet complete.",
+      "statuses": { "positive": "scheduled", "negative": "cancelled", "requested": "schedule_requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:pick[\\s-]?up|recovery|collection)\\b[^.!?]{0,100}\\b(?:scheduled|appointment|planned|cancelled)\\b"],
+      "positivePatterns": ["\\b(?:pick[\\s-]?up|recovery|collection)\\b[^.!?]{0,100}\\b(?:scheduled|appointment\\s+(?:is\\s+)?confirmed)\\b"],
+      "negativePatterns": ["\\b(?:pick[\\s-]?up|recovery|collection)\\b[^.!?]{0,80}\\b(?:cancelled|canceled|missed)\\b"],
+      "plannedPatterns": ["\\b(?:pick[\\s-]?up|recovery|collection)\\b[^.!?]{0,100}\\b(?:planned|expected|will\\s+be)\\b"],
+      "modelEvidencePatterns": ["\\b(?:pick[\\s-]?up|recovery|collection)\\b[^.!?]{0,100}\\b(?:schedule|appointment|planned|cancel)\\w*\\b"]
+    },
+    "pickup_completed": {
+      "gate": "pickup",
+      "description": "Cargo was physically picked up, recovered, collected, or loaded onto the truck.",
+      "statuses": { "positive": "picked_up", "negative": "not_picked_up", "requested": "requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "complete", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:pick[\\s-]?up|picked[\\s-]?up|collect(?:ed|ion)?|recover(?:ed|y)?|driver|loaded\\s+(?:onto|on)\\s+(?:the\\s+)?truck)\\b"],
+      "positivePatterns": ["\\b(?:picked[\\s-]?up|collected|recovered|(?:cargo|freight|shipment)\\s+(?:(?:has been|was|is)\\s+)?loaded\\s+(?:onto|on)\\s+(?:the\\s+)?truck|driver\\s+(?:has\\s+)?loaded\\s+(?:the\\s+)?(?:cargo|freight|shipment))\\b"],
+      "negativePatterns": ["\\b(?:not\\s+(?:yet\\s+)?picked[\\s-]?up|(?:has|have|had)\\s+not\\s+been\\s+(?:picked[\\s-]?up|collected|recovered)|pick[\\s-]?up\\s+(?:is\\s+)?(?:pending|missed|blocked)|still\\s+(?:waiting|awaiting)\\s+(?:for\\s+)?pick[\\s-]?up)\\b"],
+      "plannedPatterns": ["\\b(?:(?:will|should)\\s+be\\s+picked[\\s-]?up|pick[\\s-]?up\\s+(?:is\\s+)?(?:planned|scheduled|expected)|driver\\s+(?:will|should)\\s+(?:collect|recover|pick[\\s-]?up))\\b"],
+      "modelEvidencePatterns": ["\\b(?:pick[\\s-]?up|picked[\\s-]?up|collect(?:ed)?|recover(?:ed)?|loaded)\\b", "(?:נאסף|נאספו|איסוף)"]
+    },
+    "out_for_delivery": {
+      "gate": "delivery",
+      "description": "Cargo is out for delivery but delivery is not yet complete.",
+      "statuses": { "positive": "out_for_delivery", "negative": "not_out_for_delivery", "requested": "status_requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:out\\s+for\\s+delivery|en\\s+route\\s+to\\s+(?:the\\s+)?consignee|driver\\s+en\\s+route)\\b"],
+      "positivePatterns": ["\\b(?:out\\s+for\\s+delivery|en\\s+route\\s+to\\s+(?:the\\s+)?consignee|driver\\s+(?:is\\s+)?en\\s+route)\\b"],
+      "negativePatterns": ["\\bnot\\s+(?:yet\\s+)?out\\s+for\\s+delivery\\b"],
+      "plannedPatterns": ["\\b(?:will|should)\\s+(?:go|be)\\s+out\\s+for\\s+delivery\\b"],
+      "modelEvidencePatterns": ["\\b(?:out\\s+for\\s+delivery|en\\s+route\\s+to\\s+(?:the\\s+)?consignee)\\b"]
+    },
+    "delivery_scheduled": {
+      "gate": "delivery",
+      "description": "Delivery has a stated appointment or planned time but is not yet complete.",
+      "statuses": { "positive": "scheduled", "negative": "cancelled", "requested": "schedule_requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\bdelivery\\b[^.!?]{0,100}\\b(?:scheduled|appointment|planned|cancelled|canceled)\\b"],
+      "positivePatterns": ["\\bdelivery\\b[^.!?]{0,100}\\b(?:scheduled|appointment\\s+(?:is\\s+)?confirmed)\\b"],
+      "negativePatterns": ["\\bdelivery\\b[^.!?]{0,80}\\b(?:cancelled|canceled|missed|failed)\\b"],
+      "plannedPatterns": ["\\bdelivery\\b[^.!?]{0,100}\\b(?:planned|expected|will\\s+be)\\b"],
+      "modelEvidencePatterns": ["\\bdelivery\\b[^.!?]{0,100}\\b(?:schedule|appointment|planned|cancel)\\w*\\b"]
+    },
+    "delivery_completed": {
+      "gate": "delivery",
+      "description": "Cargo was delivered to the consignee or receiver.",
+      "statuses": { "positive": "delivered", "negative": "not_delivered", "requested": "requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "complete", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:deliver(?:ed|y)?|consignee\\s+received|receiver\\s+received)\\b"],
+      "positivePatterns": ["\\b(?:(?:shipment|cargo|freight|load)\\s+(?:(?:has been|was|is)\\s+)?delivered|delivery\\s+(?:(?:has been|was|is)\\s+)?(?:completed|complete|confirmed)|consignee\\s+(?:has\\s+)?received\\s+(?:the\\s+)?(?:shipment|cargo|freight|load)|delivered\\s+to\\s+(?:the\\s+)?(?:consignee|receiver|customer)|delivered)\\b"],
+      "negativePatterns": ["\\b(?:not\\s+(?:yet\\s+)?delivered|(?:has|have|had)\\s+not\\s+been\\s+delivered|delivery\\s+(?:is\\s+)?(?:pending|failed|blocked|incomplete)|still\\s+(?:waiting|awaiting)\\s+(?:for\\s+)?delivery)\\b"],
+      "plannedPatterns": ["\\b(?:(?:will|should)\\s+be\\s+delivered|delivery\\s+(?:is\\s+)?(?:planned|scheduled|expected))\\b"],
+      "modelEvidencePatterns": ["\\b(?:deliver(?:ed|y)?|consignee|receiver)\\b", "(?:נמסר|נמסרו|מסירה)"]
+    },
+    "pod_received": {
+      "gate": "pod",
+      "description": "Signed proof of delivery was received or attached.",
+      "statuses": { "positive": "received", "negative": "missing", "requested": "requested", "neutral": "planned", "unknown": "unknown" },
+      "effects": { "positive": "complete", "negative": "block", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:pods?|proof\\s+of\\s+delivery)\\b"],
+      "positivePatterns": ["\\b(?:(?:signed\\s+|empty\\s+)?(?:pods?|proof\\s+of\\s+delivery)\\s+(?:(?:is|are|was|were|has been|have been)\\s+)?(?:attached|enclosed|received)|(?:attached|enclosed)\\s+(?:(?:is|are)\\s+)?(?:the\\s+)?(?:signed\\s+|empty\\s+)?(?:pods?|proof\\s+of\\s+delivery))\\b"],
+      "negativePatterns": ["\\b(?:no\\s+(?:signed\\s+)?pods?|pods?\\s+(?:(?:is|are|was|were)\\s+)?(?:not\\s+received|missing|pending)|without\\s+(?:a\\s+)?(?:signed\\s+)?pods?|still\\s+(?:waiting|awaiting)\\s+(?:for\\s+)?(?:the\\s+)?pods?)\\b"],
+      "plannedPatterns": ["\\b(?:(?:the\\s+)?pods?\\s+(?:will|should)\\s+follow|pods?\\s+to\\s+follow)\\b"],
+      "modelEvidencePatterns": ["\\b(?:pods?|proof\\s+of\\s+delivery)\\b", "(?:פוד|הוכחת\\s+מסירה)"]
+    },
+    "last_free_day": {
+      "gate": "fees",
+      "description": "A last-free-day or storage-start deadline is stated.",
+      "statuses": { "positive": "stated", "negative": "unknown", "requested": "requested", "neutral": "estimated", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:last\\s+free\\s+day|last\\s+free|lfd|storage\\s+(?:starts|begins))\\b"],
+      "positivePatterns": ["\\b(?:last\\s+free\\s+day|last\\s+free|lfd)\\b\\s*(?:is|:|-)?\\s*(?:[A-Z][a-z]{2,8}\\.?\\s+\\d{1,2}(?:,\\s*\\d{4})?|\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4}|\\d{4}-\\d{2}-\\d{2})"],
+      "negativePatterns": ["\\b(?:last\\s+free\\s+day|last\\s+free|lfd)\\b[^.!?]{0,60}\\b(?:unknown|not\\s+provided|not\\s+available)\\b"],
+      "plannedPatterns": ["\\b(?:estimated|expected)\\s+(?:last\\s+free\\s+day|lfd)\\b"],
+      "modelEvidencePatterns": ["\\b(?:last\\s+free\\s+day|last\\s+free|lfd|storage\\s+(?:starts|begins))\\b"]
+    },
+    "quote_received": {
+      "gate": "dispatch",
+      "description": "A transportation or handling quote was received.",
+      "statuses": { "positive": "received", "negative": "missing", "requested": "requested", "neutral": "expected", "unknown": "unknown" },
+      "effects": { "positive": "context", "negative": "context", "requested": "request", "neutral": "context", "unknown": "context" },
+      "topicPatterns": ["\\b(?:quote|rate|pricing)\\b"],
+      "positivePatterns": ["\\b(?:quote|rate|pricing)\\b[^.!?]{0,80}\\b(?:attached|received|provided|is\\s+below|is\\s+as\\s+follows)\\b", "\\b(?:attached|received|provided)\\b[^.!?]{0,50}\\b(?:quote|rate|pricing)\\b"],
+      "negativePatterns": ["\\b(?:quote|rate|pricing)\\b[^.!?]{0,60}\\b(?:missing|not\\s+received|not\\s+available)\\b"],
+      "plannedPatterns": ["\\b(?:quote|rate|pricing)\\b[^.!?]{0,60}\\b(?:will\\s+follow|expected|to\\s+follow)\\b"],
+      "modelEvidencePatterns": ["\\b(?:quote|rate|pricing)\\b"]
+    }
+  }
+}

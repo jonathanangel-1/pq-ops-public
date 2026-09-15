@@ -1,0 +1,7 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Reviewed non-credential test strings, table name, and SQL protocol version"
+regexTarget = "secret"
+regexes = ['''^(same-secret-12345|truth_gmail_model_schema_retry_token_recoveries|enable-primary-v1|hex64-plus-LF-v1)$''']

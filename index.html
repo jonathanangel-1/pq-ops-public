@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PQ Ops — Synthetic demo</title>
+    <meta name="theme-color" content="#050505" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="/demo/mark.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/demo/mark.svg" />
+    <link rel="stylesheet" href="./styles.min.css?v=desk2-v52" data-source="./styles.css?v=desk2-v52" />
+  </head>
+  <body class="companion-mode"><div style="position:fixed;bottom:8px;left:8px;right:8px;z-index:9999;pointer-events:none;border-radius:8px;padding:9px 20px;background:#dcebe2;color:#183b2c;font:13px system-ui">Public demo · Fictional shipments · Local evidence/truth builders · No external actions</div>
+    <main class="app">
+      <header class="mobile-chrome" aria-label="ELAI companion header">
+        <div class="mobile-brand" aria-label="ELAI">
+          <img src="./demo/mark.svg" alt="" />
+        </div>
+        <span class="beta-mode-pill" title="Beta" aria-label="Beta">Beta</span>
+      </header>
+
+      <header class="desktop-chrome" aria-label="ELAI desktop header">
+        <div class="desktop-brand" aria-label="ELAI">
+          <img src="./demo/mark.svg" alt="" />
+        </div>
+        <span class="beta-mode-pill" title="Beta" aria-label="Beta">Beta</span>
+      </header>
+
+      <section class="controls" aria-label="Board controls">
+        <input id="searchInput" type="search" placeholder="Search AWB, client, broker, station — ⌘K" />
+        <div class="control-actions">
+          <div class="refresh-copy">
+            <span id="snapshotTime">Loading snapshot</span>
+            <span id="refreshStatus">Ready</span>
+          </div>
+          <button id="pushSubscribeButton" class="push-alert-button" type="button" aria-label="Enable alerts"></button>
+          <button id="refreshButton" class="refresh-button health-unknown" type="button">Refresh</button>
+        </div>
+        <div id="emailProofPacket" class="email-proof-packet" hidden></div>
+      </section>
+
+      <section class="board">
+        <div class="list-panel">
+          <div class="list-head">
+            <span id="resultCount">0 shipments</span>
+          </div>
+          <div id="shipmentList" class="shipment-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="detailOverlay" class="overlay" aria-hidden="true">
+      <div class="overlay-backdrop" data-close-detail></div>
+      <aside id="detailPane" class="detail modal-detail" aria-label="Shipment detail" role="dialog" aria-modal="true"></aside>
+    </div>
+
+    <script src="./config.js"></script>
+    <script src="./app.min.js?v=desk2-v52" data-source="./app.js?v=desk2-v52"></script>
+  </body>
+</html>
